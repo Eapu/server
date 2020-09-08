@@ -1,0 +1,21 @@
+{% extends "books/base.html" %}
+{% block content %}
+Wellcome to ebook library
+
+<script>
+const xhr = new XMLHttpRequest()
+const method = 'GET' //"POST"
+const url = "/books"
+const responseType = "json"
+xhr.responseType = responseType
+xhr.open(method, url)
+xhr.onload = function(){
+  const serverResponse = xhr.response
+  var listedItems = xhr.response.response
+  console.log(listedItems)
+
+}
+
+xhr.send()
+</script>
+{% endblock content %}

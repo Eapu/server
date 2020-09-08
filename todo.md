@@ -3,14 +3,14 @@
     ->Login
     ->Logout
     ->Profile
-        ->image?
-        ->Text
+        ->bio
         ->borrowed books
 
 2. Books
     ->List of Books
+        ->image ->Media storage server
         ->detail view
         ->borrow by users
         ->books recomendentions
 
-3. Comment sistem?
+3. Comment system?
