@@ -1,34 +1,34 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse
-from .models import Book
+from .models import Todo
 
 def home_view(request, *args, **kwargs):
     return render(request, 'books/home.html', context={}, status=200)
 
-def book_list_view(request, *args, **kwargs):
+def todo_list_view(request, *args, **kwargs):
     """
     REST API VIEW
     consume by javascript react
     """
-    qs = Book.objects.all()
-    books_list = [{"id": x.id, "title":x.title} for x in qs]
+    qs = Todo.objects.all()
+    todo_list = [{"id": x.id, "title":x.title} for x in qs]
     data = {
         "isUser":False,
-        "response": books_list
+        "response": todo_list
     }
     return JsonResponse(data)
 
-def book_detail_view(request, book_id, *args, **kwargs):
+def todo_detail_view(request, todo_id, *args, **kwargs):
     """
     REST API VIEW
     consume by javascript react
     """
     data = {
-    "id": book_id,
+    "id": todo_id,
     }
     status=200
     try:
-        obj = Book.objects.get(id=book_id)
+        obj = Todo.objects.get(id=todo_id)
         data['title'] = obj.title
     except:
         data['message'] = "Not found"

@@ -1,0 +1,26 @@
+{% extends "todo/base.html" %}
+{% block content %}
+Wellcome to ebook library
+<div id='todo'>
+Replace me
+</div>
+
+<script>
+const todoElement = document.getElementById("todo")
+todoElement.innerHTML = 'Loading..'
+const xhr = new XMLHttpRequest()
+const method = 'GET' //"POST"
+const url = "/todo"
+const responseType = "json"
+xhr.responseType = responseType
+xhr.open(method, url)
+xhr.onload = function(){
+    const serverResponse = xhr.response
+    var listedItems = serverResponse.response
+    console.log(listedItems)
+
+}
+
+xhr.send()
+</script>
+{% endblock content %}
