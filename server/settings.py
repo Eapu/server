@@ -35,8 +35,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
     'todo',
 ]
+# we whitelist localhost:3000 because that's where frontend will be served
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
