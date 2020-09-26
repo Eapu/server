@@ -8,7 +8,7 @@ from todo.views import (
 urlpatterns = [
     path('', home_view),
     path('todo/',todo_list_view),
-    path('create-todo/',todo_create_view),
+    path('create-todo',todo_create_view),
     path('todo/<int:todok_id>',todo_detail_view),
 
 

@@ -23,7 +23,7 @@ SECRET_KEY = 'az=0ezypl4dut^xn4_6_xw0r6#4uj6=u&b8r@yf-tk8jtkw1!t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'todo',
 ]
 # we whitelist localhost:3000 because that's where frontend will be served
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

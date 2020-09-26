@@ -1,47 +1,84 @@
 {% extends "todo/base.html" %}
 {% block content %}
-Wellcome to famlily link
+<div class="row text-center">
+    <div class="col">
+        <h2>Wellcome to FamlilyLink</h2>
+    </div></div>
+
+    <div class='row mb-3'>
+        <div class='col-md-4 mx-auto col-10'>
+        <form class='form' id='todo-create-form' method='POST' action='/create-todo'>
+                {% csrf_token %}
+            <input type='hidden' value='/' name='next' />
+            <textarea class='form-control' name='content' placeholder='you'></textarea>
+            <button type='submit' class='btn btn-primary'>Todo</button>
+        </form>
+        </div></div>
 <div id='todo'>
-Replace me
+Loading...
 </div>
 
 <script>
-const todoElement = document.getElementById("todo")
-todoElement.innerHTML = 'Loading..'
-//var el1 = "<h1>sfs</h1>"
-//todoElement.innerHTML = el1
-const xhr = new XMLHttpRequest()
-const method = 'GET' //"POST"
-const url = "/todo"
-const responseType = "json"
+function handleTodoCreateFormDidSubmit(event) {
+    event.preventDefault()
+    const myForm = event.target
+    const myFormData = new FormData(myForm)
+    const url = myForm.getAttribute("action")
+    const method = myForm.getAttribute("method")
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, url)
+    xhr.onload = function() {
+        const serverResponse = xhr.response
+        console.log(serverResponse)
+    }
+    xhr.send(myFormData)
+    //console.log(url, method)
+
+
+}
+const todoCreateFormEl = document.getElementById("todo-create-form")
+
+todoCreateFormEl.addEventListener("submit", handleTodoCreateFormDidSubmit)
+
+
+
+
+const todoEl = document.getElementById("todo")
+function loadTodo(todoElement) {
+    const xhr = new XMLHttpRequest()
+    const method = 'GET' //"POST"
+    const url = "/todo"
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function(){
+        const serverResponse = xhr.response
+        var listedItems = serverResponse.response //array
+        var finalTodoStr = ""
+        var i;
+        for (i=0;i<listedItems.length; i++) {
+            console.log(listedItems[i])
+            var todoObj = listedItems[i]
+            var currentItem = formatTodoElement(todoObj)
+            finalTodoStr += currentItem
+        }
+        todoElement.innerHTML = finalTodoStr
+        //console.log(listedItems)
+    }
+    xhr.send()
+}
+loadTodo(todoEl)
+
 function DoneBtn() {
     return "<button class='btn btn-primary'>Done</button>"
 }
 function formatTodoElement(todo) {
-    var formattedTodo = "<div class='mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
+    var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
     + todo.title + todo.content +
-    "</p><div class='btn-group'>" + DoneBtn() +   
+    "</p><div class='btn-group'>" + DoneBtn() +
     "</div></div>"
     return formattedTodo
 }
-xhr.responseType = responseType
-xhr.open(method, url)
-xhr.onload = function(){
-    const serverResponse = xhr.response
-    var listedItems = serverResponse.response //array
-    var finalTodoStr = ""
-    var i;
-    for (i=0;i<listedItems.length; i++) {
-        console.log(listedItems[i])
-        var todoObj = listedItems[i]
-        var currentItem = formatTodoElement(todoObj)
-        finalTodoStr += currentItem
-    }
-    todoElement.innerHTML = finalTodoStr
-    //console.log(listedItems)
 
-}
-
-xhr.send()
 </script>
 {% endblock content %}
