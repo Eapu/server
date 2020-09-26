@@ -13,14 +13,14 @@ def todo_create_view(request, *args, **kwargs):
         obj.save()
         form = TodoForm()
     return render(request, 'todo/components/forms.html', context={"form":form})
-    
+
 def todo_list_view(request, *args, **kwargs):
     """
     REST API VIEW
     consume by javascript react
     """
     qs = Todo.objects.all()
-    todo_list = [{"id": x.id, "title":x.title,"title":x.content} for x in qs]
+    todo_list = [{"id": x.id, "title":x.title, "content": x.content} for x in qs]
     data = {
         "isUser":False,
         "response": todo_list
