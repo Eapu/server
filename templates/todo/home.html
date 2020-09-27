@@ -27,9 +27,14 @@ function handleTodoCreateFormDidSubmit(event) {
     const method = myForm.getAttribute("method")
     const xhr = new XMLHttpRequest()
     xhr.open(method, url)
+    //xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+
     xhr.onload = function() {
         const serverResponse = xhr.response
         console.log(serverResponse)
+        const todoEl = document.getElementById("todo")
+        loadTodo(todoEl)
     }
     xhr.send(myFormData)
     //console.log(url, method)
@@ -37,7 +42,6 @@ function handleTodoCreateFormDidSubmit(event) {
 
 }
 const todoCreateFormEl = document.getElementById("todo-create-form")
-
 todoCreateFormEl.addEventListener("submit", handleTodoCreateFormDidSubmit)
 
 
@@ -51,13 +55,13 @@ function loadTodo(todoElement) {
     const responseType = "json"
     xhr.responseType = responseType
     xhr.open(method, url)
-    xhr.onload = function(){
+    xhr.onload = function() {
         const serverResponse = xhr.response
         var listedItems = serverResponse.response //array
         var finalTodoStr = ""
         var i;
         for (i=0;i<listedItems.length; i++) {
-            console.log(listedItems[i])
+            //console.log(listedItems[i])
             var todoObj = listedItems[i]
             var currentItem = formatTodoElement(todoObj)
             finalTodoStr += currentItem

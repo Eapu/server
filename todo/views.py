@@ -11,6 +11,7 @@ def home_view(request, *args, **kwargs):
     return render(request, 'todo/home.html', context={}, status=200)
 
 def todo_create_view(request, *args, **kwargs):
+    print("ajax", request.is_ajax())
     form = TodoForm(request.POST or None)
     next_url = request.POST.get("next") or None
     if form.is_valid():
