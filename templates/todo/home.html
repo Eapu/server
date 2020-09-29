@@ -9,8 +9,9 @@
         <div class='col-md-4 mx-auto col-10'>
         <form class='form' id='todo-create-form' method='POST' action='/create-todo'>
                 {% csrf_token %}
+                <div class='d-none alert alert-danger' id="todo-create-form-error"></div>
             <input type='hidden' value='/' name='next' />
-            <textarea class='form-control' name='content' placeholder='you'></textarea>
+            <textarea required='required' class='form-control' name='content' placeholder='you'></textarea>
             <button type='submit' class='btn btn-primary'>Todo</button>
         </form>
         </div></div>
@@ -19,6 +20,18 @@ Loading...
 </div>
 
 <script>
+function handleTodoFormError(msg, display) {
+    var myErrorDiv = document.getElementById("todo-create-form-error")
+    if (display === true) {
+        //show error
+        myErrorDiv.setAttribute("class", "d-block alert alert-danger")
+        myErrorDiv.innerText = msg
+    } else {
+        //hide error
+        myErrorDiv.setAttribute("class","d-none alert alert-danger")
+    }
+}
+
 function handleTodoCreateFormDidSubmit(event) {
     event.preventDefault()
     const myForm = event.target
@@ -26,15 +39,45 @@ function handleTodoCreateFormDidSubmit(event) {
     const url = myForm.getAttribute("action")
     const method = myForm.getAttribute("method")
     const xhr = new XMLHttpRequest()
+    const responseType = "json"
+    xhr.responseType = responseType
     xhr.open(method, url)
-    //xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
-    //xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
 
     xhr.onload = function() {
-        const serverResponse = xhr.response
-        console.log(serverResponse)
-        const todoEl = document.getElementById("todo")
-        loadTodo(todoEl)
+        if (xhr.status === 201) {
+            handleTodoFormError("", false)
+            const newTodoJson = xhr.response
+            const newTodoElement = formatTodoElement(newTodoJson)
+            const ogHtml = todoContainerElement.innerHTML
+            todoContainerElement.innerHTML = newTodoElement + ogHtml
+            myForm.reset()
+        } else if (xhr.status === 400) {
+            const errorJson = xhr.response
+            console.log(errorJson)
+            const contentError = errorJson.content
+            let contentErrorMsg;
+            if (contentError) {
+                contentErrorMsg = contentError[0]
+                if (contentErrorMsg) {
+                    handleTodoFormError(contentErrorMsg, true)
+                } else {
+                    alert("An error occured.")
+                }
+            } else {
+                alert ("An error occured.")
+            } 
+        } else if (xhr.status === 401) {
+            alert("You must login!")
+            window.location.href = "/login"
+        }
+        else if (xhr.status === 500) {
+            alert("An server error occured.")
+        }
+    }
+    xhr.onerror = function() {
+        alert("An error ocurred. Please try again later.")
     }
     xhr.send(myFormData)
     //console.log(url, method)
@@ -47,7 +90,7 @@ todoCreateFormEl.addEventListener("submit", handleTodoCreateFormDidSubmit)
 
 
 
-const todoEl = document.getElementById("todo")
+const todoContainerElement = document.getElementById("todo")
 function loadTodo(todoElement) {
     const xhr = new XMLHttpRequest()
     const method = 'GET' //"POST"
@@ -71,14 +114,14 @@ function loadTodo(todoElement) {
     }
     xhr.send()
 }
-loadTodo(todoEl)
+loadTodo(todoContainerElement)
 
 function DoneBtn() {
     return "<button class='btn btn-primary'>Done</button>"
 }
 function formatTodoElement(todo) {
     var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
-    + todo.title + todo.content +
+    + todo.content +
     "</p><div class='btn-group'>" + DoneBtn() +
     "</div></div>"
     return formattedTodo

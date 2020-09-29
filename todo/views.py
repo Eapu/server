@@ -11,15 +11,27 @@ def home_view(request, *args, **kwargs):
     return render(request, 'todo/home.html', context={}, status=200)
 
 def todo_create_view(request, *args, **kwargs):
-    print("ajax", request.is_ajax())
+    user = request.user
+    if not request.user.is_authenticated:
+        user = None
+        if request.is_ajax():
+            return JsonResponse({}, status=401)
+
+        return redirect(settings.LOGIN_URL)
     form = TodoForm(request.POST or None)
     next_url = request.POST.get("next") or None
     if form.is_valid():
         obj = form.save(commit=False)
+        obj.user = request.user
         obj.save()
+        if request.is_ajax():
+            return JsonResponse(obj.serialize(), status=201) #201 ==created items
         if next_url != None and is_safe_url(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
         form = TodoForm()
+    if form.errors:
+        if request.is_ajax():
+            return JsonResponse(form.errors, status=400)
     return render(request, 'todo/components/form.html', context={"form":form})
 
 def todo_list_view(request, *args, **kwargs):
@@ -28,7 +40,7 @@ def todo_list_view(request, *args, **kwargs):
     consume by javascript react
     """
     qs = Todo.objects.all()
-    todo_list = [{"id": x.id, "title":x.title, "content": x.content} for x in qs]
+    todo_list = [x.serialize() for x in qs]
     data = {
         "isUser":False,
         "response": todo_list
