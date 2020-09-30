@@ -1,22 +1,50 @@
+from django.conf import settings
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.http import is_safe_url
-from django.http import HttpResponse, Http404, JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .models import Todo
 from .forms import TodoForm
-from django.conf import settings
+from .serializers import TodoSerializer
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 def home_view(request, *args, **kwargs):
     return render(request, 'todo/home.html', context={}, status=200)
 
+@api_view(['POST']) # http method the client == POST
 def todo_create_view(request, *args, **kwargs):
+    serializer = TodoSerializer(data=request.POST or None)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=201)
+    return Response({}, status=400)
+
+@api_view(['GET'])
+def todo_detail_view(request, todo_id, *args, **kwargs):
+    qs = Todo.objects.filter(id=todo_id)
+    if not qs.exists():
+        return Response({},status=404)
+    obj = qs.first()
+    serializer = TodoSerializer(obj)
+    return Response(serializer.data, status=200)
+
+@api_view(['GET'])
+def todo_list_view(request, *args, **kwargs):
+    qs = Todo.objects.all()
+    serializer = TodoSerializer(qs, many=True)
+    return Response(serializer.data)
+
+def todo_create_view_dj(request, *args, **kwargs):
+
+    # REST API CREATE VIEW ->DRF
+
     user = request.user
     if not request.user.is_authenticated:
         user = None
         if request.is_ajax():
             return JsonResponse({}, status=401)
-
         return redirect(settings.LOGIN_URL)
     form = TodoForm(request.POST or None)
     next_url = request.POST.get("next") or None
@@ -34,7 +62,7 @@ def todo_create_view(request, *args, **kwargs):
             return JsonResponse(form.errors, status=400)
     return render(request, 'todo/components/form.html', context={"form":form})
 
-def todo_list_view(request, *args, **kwargs):
+def todo_list_view_dj(request, *args, **kwargs):
     """
     REST API VIEW
     consume by javascript react
@@ -47,7 +75,7 @@ def todo_list_view(request, *args, **kwargs):
     }
     return JsonResponse(data)
 
-def todo_detail_view(request, todo_id, *args, **kwargs):
+def todo_detail_view_dj(request, todo_id, *args, **kwargs):
     """
     REST API VIEW
     consume by javascript react

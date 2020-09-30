@@ -1,7 +1,8 @@
+from django.conf import settings
 from django import forms
 from .models import Todo
 
-MAX_TODO_LENGTH = 240
+MAX_TODO_LENGTH = settings.MAX_TODO_LENGTH
 
 class TodoForm(forms.ModelForm):
     class Meta:

@@ -25,6 +25,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 LOGIN_URL = "/login"
+MAX_TODO_LENGTH = 240
 
 
 # Application definition
@@ -37,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    # third-party
     'rest_framework',
+    # internal
     'todo',
 ]
 # we whitelist localhost:3000 because that's where frontend will be served

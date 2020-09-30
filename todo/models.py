@@ -15,7 +15,7 @@ class Todo(models.Model):
 #    borrowed_by = models.ManyToManyField(Person, related_name='person', blank=True)
 
     def __str__(self):
-        return self.title
+        return self.content
 
     def serialize(self):
         return {
