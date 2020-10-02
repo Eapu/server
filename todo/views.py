@@ -2,7 +2,9 @@ from django.conf import settings
 from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.http import is_safe_url
-from rest_framework.decorators import api_view
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Todo
 from .forms import TodoForm
@@ -14,6 +16,8 @@ def home_view(request, *args, **kwargs):
     return render(request, 'todo/home.html', context={}, status=200)
 
 @api_view(['POST']) # http method the client == POST
+@authentication_classes([SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def todo_create_view(request, *args, **kwargs):
     serializer = TodoSerializer(data=request.POST or None)
     if serializer.is_valid(raise_exception=True):

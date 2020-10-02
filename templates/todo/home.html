@@ -71,10 +71,13 @@ function handleTodoCreateFormDidSubmit(event) {
         } else if (xhr.status === 401) {
             alert("You must login!")
             window.location.href = "/login"
+        }else if (xhr.status === 403) {
+            alert("You must login!")
+            window.location.href = "/login"
         }
         else if (xhr.status === 500) {
-            alert("An server error occured.")
-        }
+            alert("A server error occured.")
+        }console.log(contentErrorMsg)
     }
     xhr.onerror = function() {
         alert("An error ocurred. Please try again later.")
