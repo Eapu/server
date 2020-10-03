@@ -34,6 +34,18 @@ def todo_detail_view(request, todo_id, *args, **kwargs):
     serializer = TodoSerializer(obj)
     return Response(serializer.data, status=200)
 
+@api_view(['GET','DELETE', 'POST'])
+def todo_delete_view(request, todo_id, *args, **kwargs):
+    qs = Todo.objects.filter(id=todo_id)
+    if not qs.exists():
+        return Response({},status=404)
+    qs = qs.filter(user=request.user)
+    if not qs.exists():
+        return Response({"message": "You cannot delete this"}, status=401)
+    obj = qs.first()
+    obj.delete()
+    return Response({"message":"removed"}, status=200)
+
 @api_view(['GET'])
 def todo_list_view(request, *args, **kwargs):
     qs = Todo.objects.all()
