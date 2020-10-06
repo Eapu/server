@@ -28,5 +28,5 @@ class Todo(models.Model):
 
 class TodoAssign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    todo = models.ForeignKey(Todo, on_delete=models.CASCADE)
+    assign = models.ForeignKey(Todo, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)

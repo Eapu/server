@@ -35,12 +35,25 @@ def todo_detail_view(request, todo_id, *args, **kwargs):
     serializer = TodoSerializer(obj)
     return Response(serializer.data, status=200)
 
+@api_view(['GET','DELETE', 'POST'])
+@permission_classes([IsAuthenticated])
+def todo_delete_view(request, todo_id, *args, **kwargs):
+    qs = Todo.objects.filter(id=todo_id)
+    if not qs.exists():
+        return Response({},status=404)
+    qs = qs.filter(user=request.user)
+    if not qs.exists():
+        return Response({"message": "You cannot delete this"}, status=401)
+    obj = qs.first()
+    obj.delete()
+    return Response({"message":"removed"}, status=200)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def todo_action_view(request, *args, **kwargs):
     # id required
     serializer = TodoActionSerializer(data=request.POST)
-    if serializer.is_valid(raise_exception=True):
+    if serializer.is_valid(raise_excetion=True):
         data = serializer.validated_data
         todo_id = data.get("id")
         action = data.get("action")
@@ -55,19 +68,6 @@ def todo_action_view(request, *args, **kwargs):
         elif action == "share":
             # still doing
             pass
-    return Response({"message":"removed"}, status=200)
-
-@api_view(['GET','DELETE', 'POST'])
-@permission_classes([IsAuthenticated])
-def todo_delete_view(request, todo_id, *args, **kwargs):
-    qs = Todo.objects.filter(id=todo_id)
-    if not qs.exists():
-        return Response({},status=404)
-    qs = qs.filter(user=request.user)
-    if not qs.exists():
-        return Response({"message": "You cannot delete this"}, status=401)
-    obj = qs.first()
-    obj.delete()
     return Response({"message":"removed"}, status=200)
 
 @api_view(['GET'])

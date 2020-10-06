@@ -1,7 +1,9 @@
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path
 from todo.views import (
-    home_view,todo_list_view, todo_detail_view,
+    home_view,todo_list_view,
+    #todo_action_view,
+    todo_detail_view,
     todo_delete_view, todo_create_view,
 )
 app_name = 'todo'
@@ -10,6 +12,7 @@ urlpatterns = [
     path('todo/',todo_list_view),
     path('create-todo',todo_create_view),
     path('todo/<int:todo_id>',todo_detail_view),
+   # path('api/todo/todo_action_view',todo_action_view),
     path('api/todo/<int:todo_id>/delete',todo_delete_view),
 
 
