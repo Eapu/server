@@ -136,13 +136,13 @@ function loadTodo(todoElement) {
 }
 loadTodo(todoContainerElement)
 
-function handleDidAssign (todo_id, currentCount){
+function handleTodoActionBtn (todo_id, currentCount, action){
     console.log(todo_id, currentCount)
     const url = "/api/todo/todo_action_view"
     const method = "POST"
     const data = JSON.stringify({
         id:todo_id,
-        action:"assign"
+        action:action
     })
     const xhr =new XMLHttpRequest()
     const csrftoken = getCookie('csrftoken');
@@ -152,19 +152,32 @@ function handleDidAssign (todo_id, currentCount){
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.setRequestHeader("X-CSRFToken", csrftoken)
     xhr.onload = function() {
-        console.log(xhr.status, xhr.response)
+        // will be done with react.js
+        loadTodo(todoContainerElement)
+
     }
     xhr.send(data)
     return
 }
+function RedoBtn(todo) {
+    return "<button class='btn btn-outline-success btn-sm' onclick=handleTodoActionBtn("+
+    todo.id + "," + todo.assign + ",'redo')>Redo</button>"
+}
 function AssignBtn(todo) {
-    return "<button class='btn btn-primary' onclick=handleDidAssign("+
-    todo.id + "," + todo.assign + ")> " + todo.assign + " Assign me</button>"
+    return "<button class='btn btn-primary' onclick=handleTodoActionBtn("+
+    todo.id + "," + todo.assign + ",'assign')> " + todo.assign + " Assign me</button>"
+}
+function UnAssignBtn(todo) {
+    return "<button class='btn btn-outline-primary' onclick=handleTodoActionBtn("+
+    todo.id + "," + todo.assign + ",'unassign')>Unassign </button>"
 }
 function formatTodoElement(todo) {
     var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
     + todo.content +
-    "</p><div class='btn-group'>" + AssignBtn(todo) +
+    "</p><div class='btn-group'>" +
+    AssignBtn(todo) +
+    UnAssignBtn(todo) +
+    RedoBtn(todo) +
     "</div></div>"
     return formattedTodo
 }

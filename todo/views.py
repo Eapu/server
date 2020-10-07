@@ -51,12 +51,14 @@ def todo_action_view(request, *args, **kwargs):
         obj = qs.first()
         if action == "assign":
             obj.assign.add(request.user)
+            serializer = TodoSerializer(obj)
+            return Response(serializer.data, status=200)
         elif action == "unassign":
             obj.assign.remove(request.user)
-        elif action == "share":
+        elif action == "redo":
             # still doing
             pass
-    return Response({"message":"removed"}, status=200)
+    return Response({}, status=200)
 
 @api_view(['GET','DELETE', 'POST'])
 @permission_classes([IsAuthenticated])
