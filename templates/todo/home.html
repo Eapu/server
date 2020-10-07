@@ -20,6 +20,23 @@ Loading...
 </div>
 
 <script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 function handleTodoFormError(msg, display) {
     var myErrorDiv = document.getElementById("todo-create-form-error")
     if (display === true) {
@@ -119,13 +136,35 @@ function loadTodo(todoElement) {
 }
 loadTodo(todoContainerElement)
 
-function DoneBtn() {
-    return "<button class='btn btn-primary'>Done</button>"
+function handleDidAssign (todo_id, currentCount){
+    console.log(todo_id, currentCount)
+    const url = "/api/todo/todo_action_view"
+    const method = "POST"
+    const data = JSON.stringify({
+        id:todo_id,
+        action:"assign"
+    })
+    const xhr =new XMLHttpRequest()
+    const csrftoken = getCookie('csrftoken');
+    xhr.open(method, url)
+    xhr.setRequestHeader("Content-Type", "application/json")
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+    xhr.onload = function() {
+        console.log(xhr.status, xhr.response)
+    }
+    xhr.send(data)
+    return
+}
+function AssignBtn(todo) {
+    return "<button class='btn btn-primary' onclick=handleDidAssign("+
+    todo.id + "," + todo.assign + ")> " + todo.assign + " Assign me</button>"
 }
 function formatTodoElement(todo) {
     var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
     + todo.content +
-    "</p><div class='btn-group'>" + DoneBtn() +
+    "</p><div class='btn-group'>" + AssignBtn(todo) +
     "</div></div>"
     return formattedTodo
 }

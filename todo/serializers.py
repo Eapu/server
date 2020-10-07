@@ -6,6 +6,8 @@ MAX_TODO_LENGTH = settings.MAX_TODO_LENGTH
 TODO_ACTION_OPTIONS = settings.TODO_ACTION_OPTIONS
 
 class TodoActionSerializer(serializers.Serializer):
+	assign = serializers.SerializerMethodField(read_only=True)
+
 	id = serializers.IntegerField()
 	action = serializers.CharField()
 
@@ -17,11 +19,14 @@ class TodoActionSerializer(serializers.Serializer):
 
 
 class TodoSerializer(serializers.ModelSerializer):
-		class Meta:
-				model = Todo
-				fields = ('id', 'content', 'completed')
+	assign = serializers.SerializerMethodField(read_only=True)
+	class Meta:
+		model = Todo
+		fields = ('id', 'content', 'assign', 'completed')
+	def get_assign(self, obj):
+		return obj.assign.count()
 
-		def validate_content(self,value):
-				if len(value) > MAX_TODO_LENGTH:
-					raise serializers.ValidationError("This todo is too long")
-				return value
+	def validate_content(self,value):
+		if len(value) > MAX_TODO_LENGTH:
+			raise serializers.ValidationError("This todo is too long")
+		return value

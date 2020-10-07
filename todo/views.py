@@ -39,7 +39,8 @@ def todo_detail_view(request, todo_id, *args, **kwargs):
 @permission_classes([IsAuthenticated])
 def todo_action_view(request, *args, **kwargs):
     # id required
-    serializer = TodoActionSerializer(data=request.POST)
+    print(request.POST, request.data)
+    serializer = TodoActionSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         data = serializer.validated_data
         todo_id = data.get("id")
@@ -48,10 +49,10 @@ def todo_action_view(request, *args, **kwargs):
         if not qs.exists():
             return Response({},status=404)
         obj = qs.first()
-        if action =="assign":
+        if action == "assign":
             obj.assign.add(request.user)
         elif action == "unassign":
-            obj.assign.remove(request.user) 
+            obj.assign.remove(request.user)
         elif action == "share":
             # still doing
             pass
