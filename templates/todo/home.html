@@ -1,26 +1,190 @@
 {% extends "todo/base.html" %}
 {% block content %}
-Wellcome to ebook library
+<div class="row text-center">
+    <div class="col">
+        <h2>Wellcome to FamlilyLink</h2>
+    </div></div>
+
+    <div class='row mb-3'>
+        <div class='col-md-4 mx-auto col-10'>
+        <form class='form' id='todo-create-form' method='POST' action='/create-todo'>
+                {% csrf_token %}
+                <div class='d-none alert alert-danger' id="todo-create-form-error"></div>
+            <input type='hidden' value='/' name='next' />
+            <textarea required='required' class='form-control' name='content' placeholder='you'></textarea>
+            <button type='submit' class='btn btn-primary'>Todo</button>
+        </form>
+        </div></div>
 <div id='todo'>
-Replace me
+Loading...
 </div>
 
 <script>
-const todoElement = document.getElementById("todo")
-todoElement.innerHTML = 'Loading..'
-const xhr = new XMLHttpRequest()
-const method = 'GET' //"POST"
-const url = "/todo"
-const responseType = "json"
-xhr.responseType = responseType
-xhr.open(method, url)
-xhr.onload = function(){
-    const serverResponse = xhr.response
-    var listedItems = serverResponse.response
-    console.log(listedItems)
-
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
-xhr.send()
+
+function handleTodoFormError(msg, display) {
+    var myErrorDiv = document.getElementById("todo-create-form-error")
+    if (display === true) {
+        //show error
+        myErrorDiv.setAttribute("class", "d-block alert alert-danger")
+        myErrorDiv.innerText = msg
+    } else {
+        //hide error
+        myErrorDiv.setAttribute("class","d-none alert alert-danger")
+    }
+}
+
+function handleTodoCreateFormDidSubmit(event) {
+    event.preventDefault()
+    const myForm = event.target
+    const myFormData = new FormData(myForm)
+    const url = myForm.getAttribute("action")
+    const method = myForm.getAttribute("method")
+    const xhr = new XMLHttpRequest()
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+
+    xhr.onload = function() {
+        if (xhr.status === 201) {
+            handleTodoFormError("", false)
+            const newTodoJson = xhr.response
+            const newTodoElement = formatTodoElement(newTodoJson)
+            const ogHtml = todoContainerElement.innerHTML
+            todoContainerElement.innerHTML = newTodoElement + ogHtml
+            myForm.reset()
+        } else if (xhr.status === 400) {
+            const errorJson = xhr.response
+            console.log(errorJson)
+            const contentError = errorJson.content
+            let contentErrorMsg;
+            if (contentError) {
+                contentErrorMsg = contentError[0]
+                if (contentErrorMsg) {
+                    handleTodoFormError(contentErrorMsg, true)
+                } else {
+                    alert("An error occured.")
+                }
+            } else {
+                alert ("An error occured.")
+            } 
+        } else if (xhr.status === 401) {
+            alert("You must login!")
+            window.location.href = "/login"
+        }else if (xhr.status === 403) {
+            alert("You must login!")
+            window.location.href = "/login"
+        }
+        else if (xhr.status === 500) {
+            alert("A server error occured.")
+        }console.log(contentErrorMsg)
+    }
+    xhr.onerror = function() {
+        alert("An error ocurred. Please try again later.")
+    }
+    xhr.send(myFormData)
+    //console.log(url, method)
+
+
+}
+const todoCreateFormEl = document.getElementById("todo-create-form")
+todoCreateFormEl.addEventListener("submit", handleTodoCreateFormDidSubmit)
+
+
+
+
+const todoContainerElement = document.getElementById("todo")
+function loadTodo(todoElement) {
+    const xhr = new XMLHttpRequest()
+    const method = 'GET' //"POST"
+    const url = "/todo"
+    const responseType = "json"
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function() {
+        const serverResponse = xhr.response
+        var listedItems = serverResponse //array
+        var finalTodoStr = ""
+        var i;
+        for (i=0;i<listedItems.length; i++) {
+            //console.log(listedItems[i])
+            var todoObj = listedItems[i]
+            var currentItem = formatTodoElement(todoObj)
+            finalTodoStr += currentItem
+        }
+        todoElement.innerHTML = finalTodoStr
+        //console.log(listedItems)
+    }
+    xhr.send()
+}
+loadTodo(todoContainerElement)
+function handleTodoActionBtn(todo_id, currentCount, action) {
+    console.log(todo_id, currentCount)
+    const url = "/api/todo/todo_action_view"
+    const method="POST"
+    const data = JSON.stringify({
+        id: todo_id,
+        action: action
+    })
+    const xhr = new XMLHttpRequest()
+    const csrftoken = getCookie('csrftoken');
+    xhr.open(method, url)
+    xhr.setRequestHeader("Content-Type", "application/json")
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+    xhr.onload = function() {
+        // react.js this handle the state much better
+        loadTodo(todoContainerElement)
+    }
+    xhr.send(data)
+    return 
+}
+
+
+function RetodoBtn(todo) {
+    return "<button class='btn btn-outline-success btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'retodo')>Retodo</button>"
+}
+
+
+function UnAssignBtn(todo) {
+    return "<button class='btn btn-outline-primary btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'unassign')>Unassign</button>"
+}
+
+function AssignBtn(todo) {
+    return "<button class='btn btn-primary btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'assign')>" + todo.assign + " Assign</button>"
+}
+
+function formatTodoElement(todo) {
+    var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id 
+    + "'><p>" + todo.content + 
+        "</p><div class='btn-group'>" + 
+            AssignBtn(todo) +
+            UnAssignBtn(todo) + 
+            RetodoBtn(todo) +
+        "</div></div>"
+    return formattedTodo
+}
+
 </script>
 {% endblock content %}

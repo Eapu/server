@@ -3,14 +3,12 @@
     ->Login
     ->Logout
     ->Profile
-        ->bio
-        ->borrowed books
+         ->bio
 
-2. Books
-    ->List of Books
-        ->image ->Media storage server
-        ->detail view
-        ->borrow by users
-        ->books recomendentions
+2. Todo app
+    -tasks list
+    -create, edit, delete
+    -task complete
+
 
 3. Comment system?

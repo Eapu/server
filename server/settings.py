@@ -23,7 +23,10 @@ SECRET_KEY = 'az=0ezypl4dut^xn4_6_xw0r6#4uj6=u&b8r@yf-tk8jtkw1!t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
+LOGIN_URL = "/login"
+MAX_TODO_LENGTH = 240
+TODO_ACTION_OPTIONS = ["assign", "unassign", "retodo"]
 
 
 # Application definition
@@ -35,8 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    # third-party
+    'rest_framework',
+    # internal
     'todo',
 ]
+# we whitelist localhost:3000 because that's where frontend will be served
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -117,3 +125,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+'''
+# for productiom
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+}
+'''
