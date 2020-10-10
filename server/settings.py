@@ -26,7 +26,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1']
 LOGIN_URL = "/login"
 MAX_TODO_LENGTH = 240
-TODO_ACTION_OPTIONS = ["assign", "unassign", "share"]
+TODO_ACTION_OPTIONS = ["assign", "unassign", "retodo"]
 
 
 # Application definition

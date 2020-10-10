@@ -8,7 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Todo
 from .forms import TodoForm
-from .serializers import TodoSerializer, TodoActionSerializer
+from .serializers import (
+    TodoSerializer,
+    TodoActionSerializer,
+    TodoCreateSerializer)
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
@@ -19,7 +22,7 @@ def home_view(request, *args, **kwargs):
 #@authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def todo_create_view(request, *args, **kwargs):
-    serializer = TodoSerializer(data=request.POST or None)
+    serializer = TodoCreateSerializer(data=request.POST)
     if serializer.is_valid(raise_exception=True):
         serializer.save(user=request.user)
         return Response(serializer.data, status=201)
@@ -35,7 +38,7 @@ def todo_detail_view(request, todo_id, *args, **kwargs):
     serializer = TodoSerializer(obj)
     return Response(serializer.data, status=200)
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 @permission_classes([IsAuthenticated])
 def todo_action_view(request, *args, **kwargs):
     # id required
@@ -45,6 +48,7 @@ def todo_action_view(request, *args, **kwargs):
         data = serializer.validated_data
         todo_id = data.get("id")
         action = data.get("action")
+        content = data.get("content")
         qs = Todo.objects.filter(id=todo_id)
         if not qs.exists():
             return Response({},status=404)
@@ -55,9 +59,14 @@ def todo_action_view(request, *args, **kwargs):
             return Response(serializer.data, status=200)
         elif action == "unassign":
             obj.assign.remove(request.user)
-        elif action == "redo":
-            # still doing
-            pass
+        elif action == "retodo":
+            new_todo = Todo.objects.create(
+                user=request.user,
+                parent=obj,
+                content=content,
+                )
+            serializer = TodoSerializer(new_todo)
+            return Response(serializer.data, status=200)
     return Response({}, status=200)
 
 @api_view(['GET','DELETE', 'POST'])

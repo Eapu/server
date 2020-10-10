@@ -7,7 +7,7 @@ class TodoAssignAdmin(admin.TabularInline):
 
 class TodoAdmin(admin.ModelAdmin):
     inlines = [TodoAssignAdmin]
-    list_display = ('__str__','user', 'content', 'completed') # add this
+    list_display = ('__str__','user', 'content') # add this
     search_fieds = ['user__username', 'user_email']
     class Meta:
         model = Todo

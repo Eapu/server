@@ -135,16 +135,15 @@ function loadTodo(todoElement) {
     xhr.send()
 }
 loadTodo(todoContainerElement)
-
-function handleTodoActionBtn (todo_id, currentCount, action){
+function handleTodoActionBtn(todo_id, currentCount, action) {
     console.log(todo_id, currentCount)
     const url = "/api/todo/todo_action_view"
-    const method = "POST"
+    const method="POST"
     const data = JSON.stringify({
-        id:todo_id,
-        action:action
+        id: todo_id,
+        action: action
     })
-    const xhr =new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
     const csrftoken = getCookie('csrftoken');
     xhr.open(method, url)
     xhr.setRequestHeader("Content-Type", "application/json")
@@ -152,33 +151,38 @@ function handleTodoActionBtn (todo_id, currentCount, action){
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.setRequestHeader("X-CSRFToken", csrftoken)
     xhr.onload = function() {
-        // will be done with react.js
+        // react.js this handle the state much better
         loadTodo(todoContainerElement)
-
     }
     xhr.send(data)
-    return
+    return 
 }
-function RedoBtn(todo) {
-    return "<button class='btn btn-outline-success btn-sm' onclick=handleTodoActionBtn("+
-    todo.id + "," + todo.assign + ",'redo')>Redo</button>"
+
+
+function RetodoBtn(todo) {
+    return "<button class='btn btn-outline-success btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'retodo')>Retodo</button>"
 }
-function AssignBtn(todo) {
-    return "<button class='btn btn-primary' onclick=handleTodoActionBtn("+
-    todo.id + "," + todo.assign + ",'assign')> " + todo.assign + " Assign me</button>"
-}
+
+
 function UnAssignBtn(todo) {
-    return "<button class='btn btn-outline-primary' onclick=handleTodoActionBtn("+
-    todo.id + "," + todo.assign + ",'unassign')>Unassign </button>"
+    return "<button class='btn btn-outline-primary btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'unassign')>Unassign</button>"
 }
+
+function AssignBtn(todo) {
+    return "<button class='btn btn-primary btn-sm' onclick=handleTodoActionBtn(" + 
+    todo.id + "," + todo.assign + ",'assign')>" + todo.assign + " Assign</button>"
+}
+
 function formatTodoElement(todo) {
-    var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id + "'><p>" + todo.id
-    + todo.content +
-    "</p><div class='btn-group'>" +
-    AssignBtn(todo) +
-    UnAssignBtn(todo) +
-    RedoBtn(todo) +
-    "</div></div>"
+    var formattedTodo = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4 todo' id='todo-" + todo.id 
+    + "'><p>" + todo.content + 
+        "</p><div class='btn-group'>" + 
+            AssignBtn(todo) +
+            UnAssignBtn(todo) + 
+            RetodoBtn(todo) +
+        "</div></div>"
     return formattedTodo
 }
 
