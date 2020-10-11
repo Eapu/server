@@ -14,9 +14,12 @@ from .serializers import (
     TodoCreateSerializer)
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
-
+@permission_classes([IsAuthenticated])
 def home_view(request, *args, **kwargs):
-    return render(request, 'todo/home.html', context={}, status=200)
+    username = None
+    if request.user.is_authenticated:
+        username = request.user.username
+    return render(request, 'todo/home.html', context={"username":username}, status=200)
 
 @api_view(['POST']) # http method the client == POST
 #@authentication_classes([SessionAuthentication])
@@ -80,9 +83,10 @@ def todo_delete_view(request, todo_id, *args, **kwargs):
         return Response({"message": "You cannot delete this"}, status=401)
     obj = qs.first()
     obj.delete()
-    return Response({"message":"removed"}, status=200)
+    return Response({"message":"remove_view"}, status=200)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def todo_list_view(request, *args, **kwargs):
     qs = Todo.objects.all()
     serializer = TodoSerializer(qs, many=True)

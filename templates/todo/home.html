@@ -135,9 +135,10 @@ function loadTodo(todoElement) {
     xhr.send()
 }
 loadTodo(todoContainerElement)
+
 function handleTodoActionBtn(todo_id, currentCount, action) {
     console.log(todo_id, currentCount)
-    const url = "/api/todo/todo_action_view"
+    const url = "/api/todo/action/"
     const method="POST"
     const data = JSON.stringify({
         id: todo_id,
