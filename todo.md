@@ -12,3 +12,7 @@
 
 
 3. Comment system?
+
+--before production--
+  -missing .gitignore file including react's .gitignore
+  -add in settings restframework json rest api 

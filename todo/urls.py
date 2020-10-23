@@ -9,9 +9,9 @@ from todo.views import (
 app_name = 'todo'
 urlpatterns = [
     path('',todo_list_view),
+    path('action/',todo_action_view),
     path('create/',todo_create_view),
     path('<int:todo_id>/',todo_detail_view),
-    path('action/',todo_action_view),
     path('<int:todo_id>/delete/',todo_delete_view),
 
 

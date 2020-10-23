@@ -14,6 +14,7 @@ from .serializers import (
     TodoCreateSerializer)
 
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+
 @permission_classes([IsAuthenticated])
 def home_view(request, *args, **kwargs):
     username = None
@@ -62,6 +63,8 @@ def todo_action_view(request, *args, **kwargs):
             return Response(serializer.data, status=200)
         elif action == "unassign":
             obj.assign.remove(request.user)
+            serializer = TodoSerializer(obj)
+            return Response(serializer.data, status=200)
         elif action == "retodo":
             new_todo = Todo.objects.create(
                 user=request.user,
@@ -69,7 +72,7 @@ def todo_action_view(request, *args, **kwargs):
                 content=content,
                 )
             serializer = TodoSerializer(new_todo)
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
     return Response({}, status=200)
 
 @api_view(['GET','DELETE', 'POST'])
@@ -80,13 +83,12 @@ def todo_delete_view(request, todo_id, *args, **kwargs):
         return Response({},status=404)
     qs = qs.filter(user=request.user)
     if not qs.exists():
-        return Response({"message": "You cannot delete this"}, status=401)
+        return Response({"message": "You cannot delete this"}, status=200)
     obj = qs.first()
     obj.delete()
     return Response({"message":"remove_view"}, status=200)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def todo_list_view(request, *args, **kwargs):
     qs = Todo.objects.all()
     serializer = TodoSerializer(qs, many=True)
